@@ -4,6 +4,7 @@
 <head>
 
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="icon" type="image/png" href="logo.png">
@@ -24,150 +25,140 @@ body {
     padding: 0;
 
     background: #080808;
+
     color: #fff;
 
-    font-family: Arial, Helvetica, sans-serif;
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
 }
 
-/* =========================
-   ACCESS DENIED
-========================= */
+
+/* ACCESS */
 
 #access-denied {
 
-    position: fixed;
-    inset: 0;
+    min-height: 100vh;
 
     display: flex;
+
     flex-direction: column;
 
     align-items: center;
-    justify-content: center;
 
-    background: #080808;
+    justify-content: center;
 
     text-align: center;
 
-    z-index: 9999;
+    padding: 24px;
 }
 
 .access-logo {
 
-    font-size: 32px;
+    font-size: 30px;
+
     font-weight: 800;
 
-    margin-bottom: 25px;
+    letter-spacing: -1px;
 }
 
 .access-title {
 
-    font-size: 24px;
-    font-weight: 700;
+    margin-top: 14px;
 
-    letter-spacing: 2px;
+    font-size: 14px;
 
-    margin-bottom: 10px;
+    font-weight: 800;
+
+    letter-spacing: 4px;
+
+    color: #ff3b3b;
 }
 
 .access-text {
 
-    color: #777;
+    margin-top: 10px;
 
-    font-size: 15px;
+    color: #666;
+
+    font-size: 13px;
 }
 
-/* =========================
-   SITE
-========================= */
+
+/* SITE */
 
 #site {
+
     display: none;
 }
 
-.container {
 
-    width: 100%;
-    max-width: 1200px;
+header {
 
-    margin: 0 auto;
-
-    padding: 20px;
-}
-
-/* =========================
-   HEADER
-========================= */
-
-.header {
+    height: 64px;
 
     display: flex;
 
     align-items: center;
+
     justify-content: space-between;
 
-    margin-bottom: 20px;
+    padding: 0 28px;
+
+    background: #0c0c0c;
+
+    border-bottom: 1px solid #202020;
 }
 
 .logo {
 
-    font-size: 26px;
+    font-size: 23px;
+
     font-weight: 800;
+
+    letter-spacing: -1px;
 }
 
-.status {
+.live {
 
     display: flex;
 
     align-items: center;
-    gap: 8px;
 
-    font-size: 13px;
+    gap: 7px;
+
+    font-size: 12px;
+
     font-weight: 700;
 
     letter-spacing: 1px;
+
+    color: #ff3b3b;
 }
 
-.status-dot {
+.live-dot {
 
-    width: 8px;
-    height: 8px;
+    width: 7px;
+
+    height: 7px;
 
     border-radius: 50%;
 
-    background: #555;
+    background: #ff3b3b;
+
+    box-shadow:
+        0 0 8px rgba(255, 59, 59, 0.8);
 }
 
-/* LIVE */
+main {
 
-.status.live {
+    width: min(1200px, 100%);
 
-    color: #ff3030;
+    margin: 0 auto;
+
+    padding: 32px 24px 50px;
 }
-
-.status.live .status-dot {
-
-    background: #ff3030;
-
-    box-shadow: 0 0 8px rgba(255, 48, 48, 0.8);
-}
-
-/* OFFLINE */
-
-.status.offline {
-
-    color: #777;
-}
-
-.status.offline .status-dot {
-
-    background: #555;
-
-    box-shadow: none;
-}
-
-/* =========================
-   PLAYER
-========================= */
 
 .player {
 
@@ -179,51 +170,166 @@ body {
 
     background: #000;
 
+    border-radius: 8px;
+
     overflow: hidden;
+
+    border: 1px solid #202020;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 #player {
+
+    width: 100%;
+
+    height: 100%;
+}
+
+
+/* OFFLINE */
+
+#offline {
 
     position: absolute;
 
     inset: 0;
 
-    width: 100%;
-    height: 100%;
+    z-index: 20;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #080808;
+
+    text-align: center;
+
+    transition: opacity 0.3s ease;
 }
 
-/* =========================
-   TEXT
-========================= */
+.offline-logo {
 
-.subtitle {
+    font-size: 30px;
+
+    font-weight: 800;
+
+    letter-spacing: -1px;
+}
+
+.offline-title {
 
     margin-top: 12px;
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+    letter-spacing: 4px;
+
+    color: #ff3b3b;
+}
+
+.offline-text {
+
+    margin-top: 9px;
 
     color: #666;
 
     font-size: 13px;
-
-    text-align: center;
 }
 
-/* =========================
-   FOOTER
-========================= */
+.offline-hidden {
 
-.footer {
+    opacity: 0;
 
-    margin-top: 30px;
+    pointer-events: none;
+}
 
-    padding-top: 15px;
 
-    border-top: 1px solid #181818;
+.stream-info {
+
+    margin-top: 14px;
+
+    padding: 0 2px;
+}
+
+.stream-title {
+
+    font-size: 18px;
+
+    font-weight: 700;
+}
+
+.stream-status {
+
+    margin-top: 5px;
+
+    color: #666;
+
+    font-size: 13px;
+}
+
+footer {
+
+    padding: 0 24px 25px;
+
+    text-align: center;
 
     color: #444;
 
-    text-align: center;
+    font-size: 11px;
+}
 
-    font-size: 12px;
+
+@media (max-width: 600px) {
+
+    header {
+
+        height: 56px;
+
+        padding: 0 16px;
+    }
+
+    .logo {
+
+        font-size: 20px;
+    }
+
+    main {
+
+        padding: 20px 0 35px;
+    }
+
+    .player {
+
+        border-radius: 0;
+
+        border-left: 0;
+
+        border-right: 0;
+    }
+
+    .stream-info {
+
+        padding: 0 16px;
+    }
+
+    footer {
+
+        padding-bottom: 20px;
+    }
+
+    .offline-logo {
+
+        font-size: 24px;
+    }
+
 }
 
 </style>
@@ -233,9 +339,7 @@ body {
 <body>
 
 
-<!-- =========================
-     ACCESS DENIED
-========================= -->
+<!-- ACCESS DENIED -->
 
 <div id="access-denied">
 
@@ -254,52 +358,73 @@ body {
 </div>
 
 
-<!-- =========================
-     SITE
-========================= -->
+<!-- MAIN SITE -->
 
 <div id="site">
 
-    <div class="container">
 
-        <div class="header">
+<header>
 
-            <div class="logo">
-                P1 → DNF
-            </div>
+<div class="logo">
+    P1 → DNF
+</div>
 
-            <div id="status" class="status offline">
+<div class="live">
 
-                <div class="status-dot"></div>
+    <span class="live-dot"></span>
 
-                <span id="status-text">
-                    OFFLINE
-                </span>
+    LIVE
 
-            </div>
+</div>
 
-        </div>
+</header>
 
 
-        <!-- PLAYER -->
+<main>
 
-        <div class="player">
-
-            <div id="player"></div>
-
-        </div>
+<div class="player">
 
 
-        <div class="subtitle">
-            Якщо зависло — це не баг, це стратегія.
-        </div>
+    <div id="offline">
 
-
-        <div class="footer">
+        <div class="offline-logo">
             P1 → DNF
         </div>
 
+        <div class="offline-title">
+            OFFLINE
+        </div>
+
+        <div class="offline-text">
+            Трансляція наразі недоступна
+        </div>
+
     </div>
+
+
+    <div id="player"></div>
+
+
+</div>
+
+
+<div class="stream-info">
+
+    <div class="stream-status">
+        Якщо зависло — це не баг, це стратегія.
+    </div>
+
+</div>
+
+</main>
+
+
+<footer>
+
+P1 → DNF
+
+</footer>
+
 
 </div>
 
@@ -308,492 +433,109 @@ body {
 
 /* =========================
    ACCESS
-========================= */
+   ========================= */
 
 var params = new URLSearchParams(window.location.search);
 
 var login = params.get("login");
 var password = params.get("password");
 
+
 var ACCESS_GRANTED =
     login === "START" &&
     password === "DNF";
 
-
-/* =========================
-   ACCESS DENIED
-========================= */
 
 if (!ACCESS_GRANTED) {
 
     document.getElementById("access-denied").style.display = "flex";
 
 }
-
-
-/* =========================
-   ACCESS GRANTED
-========================= */
-
 else {
 
     document.getElementById("access-denied").style.display = "none";
+
     document.getElementById("site").style.display = "block";
 
 
     /* =========================
-       SETTINGS
-    ========================= */
-
-    var LIVE_URL = "https://1pjezu.zgrok.io/live/index.m3u8";
-
-    var OFFLINE_URL =
-        "offline.mp4";
-
-
-    /* =========================
-       ELEMENTS
-    ========================= */
-
-    var status =
-        document.getElementById("status");
-
-    var statusText =
-        document.getElementById("status-text");
-
-
-    /* =========================
-       STATE
-    ========================= */
-
-    var currentMode = "offline";
-
-    var switching = false;
-
-
-    /* =========================
-       STATUS
-    ========================= */
-
-    function setOffline() {
-
-        status.classList.remove("live");
-        status.classList.add("offline");
-
-        statusText.textContent = "OFFLINE";
-
-    }
-
-
-    function setLive() {
-
-        status.classList.remove("offline");
-        status.classList.add("live");
-
-        statusText.textContent = "LIVE";
-
-    }
-
-
-    /* =========================
        PLAYER
-    ========================= */
+       ========================= */
+
+    var offline = document.getElementById("offline");
+
 
     var player = new Playerjs({
 
         id: "player",
 
-        file: [
-
-            {
-                title: "Offline",
-                file: OFFLINE_URL,
-                id: "offline"
-            },
-
-            {
-                title: "LIVE",
-                file: LIVE_URL,
-                id: "live"
-            }
-
-        ],
+        file: "https://x3gk4f.zgrok.io/live/index.m3u8",
 
         title: "P1 → DNF",
 
         autoplay: 1,
 
-        loop: 1
+        live: 1
 
     });
 
 
-    /* =========================
-       OFFLINE
-    ========================= */
+    function showOffline() {
 
-    function playOffline() {
-
-        if (currentMode === "offline") {
-
-            setOffline();
-
-            return;
-
-        }
-
-
-        if (switching) {
-            return;
-        }
-
-
-        switching = true;
-
-        currentMode = "offline";
-
-        setOffline();
-
-
-        try {
-
-            player.api(
-                "play",
-                "id:offline"
-            );
-
-        }
-
-        catch (e) {
-
-        }
-
-
-        setTimeout(function() {
-
-            switching = false;
-
-        }, 1000);
+        offline.classList.remove("offline-hidden");
 
     }
 
 
-    /* =========================
-       LIVE
-    ========================= */
+    function hideOffline() {
 
-    function playLive() {
-
-        if (currentMode === "live") {
-            return;
-        }
-
-
-        if (switching) {
-            return;
-        }
-
-
-        switching = true;
-
-
-        /*
-         * Спочатку перевіряємо,
-         * чи взагалі існує HLS manifest.
-         */
-
-        fetch(
-            LIVE_URL + "?check=" + Date.now(),
-            {
-                method: "GET",
-                cache: "no-store"
-            }
-        )
-
-        .then(function(response) {
-
-            if (!response.ok) {
-
-                throw new Error(
-                    "HLS unavailable"
-                );
-
-            }
-
-            return response.text();
-
-        })
-
-        .then(function(text) {
-
-            if (
-                !text.includes("#EXTM3U")
-            ) {
-
-                throw new Error(
-                    "Invalid HLS"
-                );
-
-            }
-
-
-            /*
-             * Manifest існує.
-             * Перемикаємо PlayerJS на LIVE.
-             */
-
-            currentMode = "live";
-
-            setLive();
-
-
-            player.api(
-                "play",
-                "id:live"
-            );
-
-
-            /*
-             * Даємо HLS час реально
-             * почати відтворення.
-             */
-
-            setTimeout(function() {
-
-                try {
-
-                    var hlsError =
-                        player.api("hlserror");
-
-
-                    /*
-                     * Якщо PlayerJS отримав HLS
-                     * помилку — повертаємось OFFLINE.
-                     */
-
-                    if (hlsError) {
-
-                        playOffline();
-
-                    }
-
-                }
-
-                catch (e) {
-
-                }
-
-
-                switching = false;
-
-            }, 4000);
-
-        })
-
-        .catch(function() {
-
-            /*
-             * HLS недоступний.
-             */
-
-            currentMode = "offline";
-
-            setOffline();
-
-            switching = false;
-
-        });
+        offline.classList.add("offline-hidden");
 
     }
 
 
-    /* =========================
-       PLAYER EVENTS
-    ========================= */
-
-    window.PlayerjsEvents =
-        function(event, id, info) {
-
-
-            /*
-             * Помилка відтворення.
-             */
-
-            if (
-                event === "error" ||
-                event === "loaderror"
-            ) {
-
-                if (
-                    currentMode === "live"
-                ) {
-
-                    playOffline();
-
-                }
-
-            }
-
-
-            /*
-             * Якщо PlayerJS почав
-             * новий файл.
-             */
-
-            if (event === "new") {
-
-                try {
-
-                    var active =
-                        player.api("playlist_id");
-
-
-                    if (active === "live") {
-
-                        currentMode = "live";
-
-                        setLive();
-
-                    }
-
-                    else if (
-                        active === "offline"
-                    ) {
-
-                        currentMode = "offline";
-
-                        setOffline();
-
-                    }
-
-                }
-
-                catch (e) {}
-
-            }
-
-        };
-
-
-    /* =========================
-       INITIAL
-    ========================= */
-
-    setOffline();
-
-
     /*
-     * Спочатку запускаємо інтро.
-     */
+        Перевіряємо стан PlayerJS кожні 2 секунди.
 
-    setTimeout(function() {
+        Якщо плеєр реально відтворює трансляцію —
+        ховаємо OFFLINE.
+
+        Якщо PlayerJS бачить HLS-помилку —
+        показуємо OFFLINE.
+    */
+
+    setInterval(function () {
 
         try {
 
-            player.api(
-                "play",
-                "id:offline"
-            );
+            var playing = player.api("playing");
 
+            var hlsError = player.api("hlserror");
+
+
+            if (playing === true) {
+
+                hideOffline();
+
+            }
+            else if (hlsError) {
+
+                showOffline();
+
+            }
+
+        } catch (e) {
+
+            // Нічого не робимо,
+            // якщо PlayerJS ще не готовий.
         }
 
-        catch (e) {}
-
-    }, 500);
-
-
-    /*
-     * Потім перевіряємо LIVE.
-     */
-
-    setTimeout(function() {
-
-        playLive();
-
-    }, 5000);
-
-
-    /* =========================
-       PERIODIC CHECK
-    ========================= */
-
-    setInterval(function() {
-
-        /*
-         * Якщо OFFLINE —
-         * шукаємо появу стріму.
-         */
-
-        if (
-            currentMode === "offline"
-        ) {
-
-            playLive();
-
-            return;
-
-        }
-
-
-        /*
-         * Якщо LIVE —
-         * перевіряємо, чи HLS
-         * досі доступний.
-         */
-
-        if (
-            currentMode === "live"
-        ) {
-
-            fetch(
-                LIVE_URL + "?check=" + Date.now(),
-                {
-                    method: "GET",
-                    cache: "no-store"
-                }
-            )
-
-            .then(function(response) {
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        "HLS unavailable"
-                    );
-
-                }
-
-                return response.text();
-
-            })
-
-            .then(function(text) {
-
-                if (
-                    !text.includes("#EXTM3U")
-                ) {
-
-                    throw new Error(
-                        "Invalid HLS"
-                    );
-
-                }
-
-            })
-
-            .catch(function() {
-
-                playOffline();
-
-            });
-
-        }
-
-    }, 7000);
+    }, 2000);
 
 }
 
 </script>
+
 
 </body>
 
