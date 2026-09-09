@@ -36,7 +36,6 @@ body {
 #access-denied {
 
     position: fixed;
-
     inset: 0;
 
     display: flex;
@@ -141,6 +140,7 @@ body {
 /* LIVE */
 
 .status.live {
+
     color: #ff3030;
 }
 
@@ -154,6 +154,7 @@ body {
 /* OFFLINE */
 
 .status.offline {
+
     color: #777;
 }
 
@@ -189,39 +190,10 @@ body {
 
     width: 100%;
     height: 100%;
-
-    z-index: 1;
 }
 
 /* =========================
-   OFFLINE VIDEO
-========================= */
-
-#offline-video {
-
-    position: absolute;
-
-    inset: 0;
-
-    width: 100%;
-    height: 100%;
-
-    object-fit: cover;
-
-    background: #000;
-
-    z-index: 20;
-
-    display: block;
-}
-
-.offline-hidden {
-
-    display: none !important;
-}
-
-/* =========================
-   TEXT UNDER PLAYER
+   TEXT
 ========================= */
 
 .subtitle {
@@ -262,7 +234,7 @@ body {
 
 
 <!-- =========================
-     ACCESS
+     ACCESS DENIED
 ========================= -->
 
 <div id="access-denied">
@@ -309,22 +281,11 @@ body {
         </div>
 
 
-        <!-- =========================
-             PLAYER
-        ========================= -->
+        <!-- PLAYER -->
 
         <div class="player">
 
             <div id="player"></div>
-
-            <video
-                id="offline-video"
-                src="offline.mp4"
-                autoplay
-                muted
-                loop
-                playsinline>
-            </video>
 
         </div>
 
@@ -346,7 +307,7 @@ body {
 <script>
 
 /* =========================
-   ACCESS CHECK
+   ACCESS
 ========================= */
 
 var params = new URLSearchParams(window.location.search);
@@ -377,16 +338,23 @@ if (!ACCESS_GRANTED) {
 else {
 
     document.getElementById("access-denied").style.display = "none";
-
     document.getElementById("site").style.display = "block";
+
+
+    /* =========================
+       SETTINGS
+    ========================= */
+
+    var LIVE_URL =
+        "https://x3gk4f.zgrok.io/live/index.m3u8";
+
+    var OFFLINE_URL =
+        "offline.mp4";
 
 
     /* =========================
        ELEMENTS
     ========================= */
-
-    var offlineVideo =
-        document.getElementById("offline-video");
 
     var status =
         document.getElementById("status");
@@ -403,44 +371,36 @@ else {
 
         id: "player",
 
-        file: "https://x3gk4f.zgrok.io/live/index.m3u8",
+        file: OFFLINE_URL,
 
         title: "P1 → DNF",
 
         autoplay: 1,
 
-        live: 1
+        loop: 1
 
     });
 
 
     /* =========================
-       OFFLINE
+       STATUS
     ========================= */
 
-    function showOffline() {
-
-        offlineVideo.classList.remove("offline-hidden");
+    function setOffline() {
 
         status.classList.remove("live");
+
         status.classList.add("offline");
 
         statusText.textContent = "OFFLINE";
 
-        offlineVideo.play().catch(function() {});
-
     }
 
 
-    /* =========================
-       LIVE
-    ========================= */
-
-    function showLive() {
-
-        offlineVideo.classList.add("offline-hidden");
+    function setLive() {
 
         status.classList.remove("offline");
+
         status.classList.add("live");
 
         statusText.textContent = "LIVE";
@@ -449,7 +409,152 @@ else {
 
 
     /* =========================
-       CHECK STREAM
+       START OFFLINE
+    ========================= */
+
+    setOffline();
+
+
+    /*
+     * Запускаємо інтро.
+     * PlayerJS сам триматиме його
+     * в циклі через loop:1.
+     */
+
+    try {
+
+        player.api("play", OFFLINE_URL);
+
+    }
+
+    catch (e) {
+
+    }
+
+
+    /* =========================
+       CHECK LIVE STREAM
+    ========================= */
+
+    var checkingLive = false;
+
+
+    function checkLive() {
+
+        if (checkingLive) {
+            return;
+        }
+
+        checkingLive = true;
+
+
+        /*
+         * Пробуємо переключити PlayerJS
+         * на реальний HLS.
+         */
+
+        try {
+
+            player.api("play", LIVE_URL);
+
+        }
+
+        catch (e) {
+
+            checkingLive = false;
+
+            return;
+
+        }
+
+
+        /*
+         * Даємо HLS трохи часу
+         * на запуск.
+         */
+
+        setTimeout(function() {
+
+            try {
+
+                var playing =
+                    player.api("playing");
+
+                var hlsError =
+                    player.api("hlserror");
+
+
+                /*
+                 * Якщо PlayerJS реально
+                 * почав відтворювати HLS —
+                 * ми LIVE.
+                 */
+
+                if (playing === true && !hlsError) {
+
+                    setLive();
+
+                    checkingLive = false;
+
+                }
+
+                else {
+
+                    /*
+                     * Стрім ще недоступний.
+                     * Повертаємо інтро.
+                     */
+
+                    player.api(
+                        "play",
+                        OFFLINE_URL
+                    );
+
+                    setOffline();
+
+                    checkingLive = false;
+
+                }
+
+            }
+
+            catch (e) {
+
+                try {
+
+                    player.api(
+                        "play",
+                        OFFLINE_URL
+                    );
+
+                }
+
+                catch (ignore) {}
+
+                setOffline();
+
+                checkingLive = false;
+
+            }
+
+        }, 4000);
+
+    }
+
+
+    /* =========================
+       INITIAL CHECK
+    ========================= */
+
+    setTimeout(function() {
+
+        checkLive();
+
+    }, 5000);
+
+
+    /* =========================
+       PERIODIC CHECK
     ========================= */
 
     setInterval(function() {
@@ -464,25 +569,34 @@ else {
 
 
             /*
-             * Якщо PlayerJS реально відтворює
-             * трансляцію — показуємо LIVE.
+             * Якщо зараз LIVE —
+             * стежимо, чи він не впав.
              */
 
-            if (playing === true) {
+            if (status.classList.contains("live")) {
 
-                showLive();
+                if (!playing || hlsError) {
+
+                    setOffline();
+
+                    player.api(
+                        "play",
+                        OFFLINE_URL
+                    );
+
+                }
 
             }
 
 
             /*
-             * Якщо трансляції немає —
-             * показуємо інтро.
+             * Якщо зараз OFFLINE —
+             * перевіряємо, чи з'явився стрім.
              */
 
-            else if (hlsError) {
+            else {
 
-                showOffline();
+                checkLive();
 
             }
 
@@ -490,21 +604,9 @@ else {
 
         catch (e) {
 
-            /*
-             * PlayerJS ще може бути
-             * не готовий.
-             */
-
         }
 
-    }, 2000);
-
-
-    /*
-     * На старті показуємо інтро.
-     */
-
-    showOffline();
+    }, 5000);
 
 }
 
