@@ -345,7 +345,8 @@ else {
        SETTINGS
     ========================= */
 
-    var LIVE_URL = "https://5zv0tp.zgrok.io/live/index.m3u8";
+    var LIVE_URL =
+        "https://5zv0tp.zgrok.io/live/index.m3u8";
 
     var OFFLINE_URL =
         "offline.mp4";
@@ -388,7 +389,6 @@ else {
     function setOffline() {
 
         status.classList.remove("live");
-
         status.classList.add("offline");
 
         statusText.textContent = "OFFLINE";
@@ -399,7 +399,6 @@ else {
     function setLive() {
 
         status.classList.remove("offline");
-
         status.classList.add("live");
 
         statusText.textContent = "LIVE";
@@ -408,202 +407,163 @@ else {
 
 
     /* =========================
-       START OFFLINE
+       PLAY OFFLINE
+    ========================= */
+
+    function playOffline() {
+
+        try {
+
+            player.api(
+                "play",
+                OFFLINE_URL
+            );
+
+        }
+
+        catch (e) {
+
+        }
+
+        setOffline();
+
+    }
+
+
+    /* =========================
+       CHECK HLS
+    ========================= */
+
+    var checking = false;
+
+    async function checkLive() {
+
+        if (checking) {
+            return;
+        }
+
+        checking = true;
+
+        try {
+
+            /*
+             * Перевіряємо сам HLS-манифест.
+             *
+             * Якщо трансляції немає,
+             * zgrok/MediaMTX не поверне
+             * нормальний HLS manifest.
+             */
+
+            var response = await fetch(
+                LIVE_URL + "?check=" + Date.now(),
+                {
+                    method: "GET",
+                    cache: "no-store"
+                }
+            );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "HLS unavailable"
+                );
+
+            }
+
+
+            var text =
+                await response.text();
+
+
+            /*
+             * Нормальний HLS manifest
+             * починається з #EXTM3U.
+             */
+
+            if (
+                !text.includes("#EXTM3U")
+            ) {
+
+                throw new Error(
+                    "Invalid HLS manifest"
+                );
+
+            }
+
+
+            /*
+             * HLS реально існує.
+             * Перемикаємо PlayerJS.
+             */
+
+            player.api(
+                "play",
+                LIVE_URL
+            );
+
+            setLive();
+
+        }
+
+        catch (e) {
+
+            /*
+             * HLS недоступний.
+             * Залишаємо/повертаємо інтро.
+             */
+
+            if (
+                !status.classList.contains("live")
+            ) {
+
+                setOffline();
+
+            }
+
+            else {
+
+                playOffline();
+
+            }
+
+        }
+
+        finally {
+
+            checking = false;
+
+        }
+
+    }
+
+
+    /* =========================
+       START
     ========================= */
 
     setOffline();
 
 
     /*
-     * Запускаємо інтро.
-     * PlayerJS сам триматиме його
-     * в циклі через loop:1.
+     * Даємо PlayerJS завантажитися,
+     * потім починаємо перевірку.
      */
-
-    try {
-
-        player.api("play", OFFLINE_URL);
-
-    }
-
-    catch (e) {
-
-    }
-
-
-    /* =========================
-       CHECK LIVE STREAM
-    ========================= */
-
-    var checkingLive = false;
-
-
-    function checkLive() {
-
-        if (checkingLive) {
-            return;
-        }
-
-        checkingLive = true;
-
-
-        /*
-         * Пробуємо переключити PlayerJS
-         * на реальний HLS.
-         */
-
-        try {
-
-            player.api("play", LIVE_URL);
-
-        }
-
-        catch (e) {
-
-            checkingLive = false;
-
-            return;
-
-        }
-
-
-        /*
-         * Даємо HLS трохи часу
-         * на запуск.
-         */
-
-        setTimeout(function() {
-
-            try {
-
-                var playing =
-                    player.api("playing");
-
-                var hlsError =
-                    player.api("hlserror");
-
-
-                /*
-                 * Якщо PlayerJS реально
-                 * почав відтворювати HLS —
-                 * ми LIVE.
-                 */
-
-                if (playing === true && !hlsError) {
-
-                    setLive();
-
-                    checkingLive = false;
-
-                }
-
-                else {
-
-                    /*
-                     * Стрім ще недоступний.
-                     * Повертаємо інтро.
-                     */
-
-                    player.api(
-                        "play",
-                        OFFLINE_URL
-                    );
-
-                    setOffline();
-
-                    checkingLive = false;
-
-                }
-
-            }
-
-            catch (e) {
-
-                try {
-
-                    player.api(
-                        "play",
-                        OFFLINE_URL
-                    );
-
-                }
-
-                catch (ignore) {}
-
-                setOffline();
-
-                checkingLive = false;
-
-            }
-
-        }, 4000);
-
-    }
-
-
-    /* =========================
-       INITIAL CHECK
-    ========================= */
 
     setTimeout(function() {
 
         checkLive();
 
-    }, 5000);
+    }, 3000);
 
 
     /* =========================
-       PERIODIC CHECK
+       AUTO CHECK
     ========================= */
 
     setInterval(function() {
 
-        try {
-
-            var playing =
-                player.api("playing");
-
-            var hlsError =
-                player.api("hlserror");
-
-
-            /*
-             * Якщо зараз LIVE —
-             * стежимо, чи він не впав.
-             */
-
-            if (status.classList.contains("live")) {
-
-                if (!playing || hlsError) {
-
-                    setOffline();
-
-                    player.api(
-                        "play",
-                        OFFLINE_URL
-                    );
-
-                }
-
-            }
-
-
-            /*
-             * Якщо зараз OFFLINE —
-             * перевіряємо, чи з'явився стрім.
-             */
-
-            else {
-
-                checkLive();
-
-            }
-
-        }
-
-        catch (e) {
-
-        }
+        checkLive();
 
     }, 5000);
 
