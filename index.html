@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html lang="uk">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>P1 → DNF</title>
+
+<script src="playerjs.js"></script>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+
+    background: #080808;
+
+    color: #fff;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+
+header {
+
+    height: 64px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 28px;
+
+    background: #0c0c0c;
+
+    border-bottom: 1px solid #202020;
+}
+
+.logo {
+
+    font-size: 23px;
+
+    font-weight: 800;
+
+    letter-spacing: -1px;
+}
+
+.live {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+
+    color: #ff3b3b;
+}
+
+.live-dot {
+
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #ff3b3b;
+
+    box-shadow:
+        0 0 8px rgba(255, 59, 59, 0.8);
+}
+
+main {
+
+    width: min(1200px, 100%);
+
+    margin: 0 auto;
+
+    padding: 32px 24px 50px;
+}
+
+.player {
+
+    width: 100%;
+
+    aspect-ratio: 16 / 9;
+
+    background: #000;
+
+    border-radius: 8px;
+
+    overflow: hidden;
+
+    border: 1px solid #202020;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+#player {
+
+    width: 100%;
+
+    height: 100%;
+}
+
+.stream-info {
+
+    margin-top: 14px;
+
+    padding: 0 2px;
+}
+
+.stream-title {
+
+    font-size: 18px;
+
+    font-weight: 700;
+}
+
+.stream-status {
+
+    margin-top: 5px;
+
+    color: #666;
+
+    font-size: 13px;
+}
+
+footer {
+
+    padding: 0 24px 25px;
+
+    text-align: center;
+
+    color: #444;
+
+    font-size: 11px;
+}
+
+@media (max-width: 600px) {
+
+    header {
+
+        height: 56px;
+
+        padding: 0 16px;
+    }
+
+    .logo {
+
+        font-size: 20px;
+    }
+
+    main {
+
+        padding: 20px 0 35px;
+    }
+
+    .player {
+
+        border-radius: 0;
+
+        border-left: 0;
+
+        border-right: 0;
+    }
+
+    .stream-info {
+
+        padding: 0 16px;
+    }
+
+    footer {
+
+        padding-bottom: 20px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+    P1 → DNF
+</div>
+
+<div class="live">
+
+    <span class="live-dot"></span>
+
+    LIVE
+
+</div>
+
+
+</header>
+
+<main>
+
+<div class="player">
+
+    <div id="player"></div>
+
+</div>
+
+
+<div class="stream-info">
+
+    <div class="stream-status">
+        Якщо зависло — це не баг, це стратегія.
+    </div>
+
+</div>
+
+</main>
+
+<footer>
+
+P1 → DNF
+
+
+</footer>
+
+<script>
+
+var player = new Playerjs({
+
+    id: "player",
+
+    file:"https://aitiji.zgrok.io/live/index.m3u8",
+
+    title: "P1 → DNF",
+
+    autoplay: 1,
+
+    live: 1
+
+});
+
+</script>
+
+</body>
+
+</html>
+
