@@ -345,7 +345,8 @@ else {
        SETTINGS
     ========================= */
 
-    var LIVE_URL = "https://i267bq.zgrok.io/live/index.m3u8";
+    var LIVE_URL =
+        "https://i267bq.zgrok.io/live/index.m3u8";
 
     var OFFLINE_URL =
         "offline.mp4";
@@ -363,22 +364,12 @@ else {
 
 
     /* =========================
-       PLAYER
+       STATE
     ========================= */
 
-    var player = new Playerjs({
+    var currentMode = "offline";
 
-        id: "player",
-
-        file: OFFLINE_URL,
-
-        title: "P1 → DNF",
-
-        autoplay: 1,
-
-        loop: 1
-
-    });
+    var switching = false;
 
 
     /* =========================
@@ -406,16 +397,70 @@ else {
 
 
     /* =========================
-       PLAY OFFLINE
+       PLAYER
+    ========================= */
+
+    var player = new Playerjs({
+
+        id: "player",
+
+        file: [
+
+            {
+                title: "Offline",
+                file: OFFLINE_URL,
+                id: "offline"
+            },
+
+            {
+                title: "LIVE",
+                file: LIVE_URL,
+                id: "live"
+            }
+
+        ],
+
+        title: "P1 → DNF",
+
+        autoplay: 1,
+
+        loop: 1
+
+    });
+
+
+    /* =========================
+       OFFLINE
     ========================= */
 
     function playOffline() {
+
+        if (currentMode === "offline") {
+
+            setOffline();
+
+            return;
+
+        }
+
+
+        if (switching) {
+            return;
+        }
+
+
+        switching = true;
+
+        currentMode = "offline";
+
+        setOffline();
+
 
         try {
 
             player.api(
                 "play",
-                OFFLINE_URL
+                "id:offline"
             );
 
         }
@@ -424,43 +469,49 @@ else {
 
         }
 
-        setOffline();
+
+        setTimeout(function() {
+
+            switching = false;
+
+        }, 1000);
 
     }
 
 
     /* =========================
-       CHECK HLS
+       LIVE
     ========================= */
 
-    var checking = false;
+    function playLive() {
 
-    async function checkLive() {
-
-        if (checking) {
+        if (currentMode === "live") {
             return;
         }
 
-        checking = true;
 
-        try {
+        if (switching) {
+            return;
+        }
 
-            /*
-             * Перевіряємо сам HLS-манифест.
-             *
-             * Якщо трансляції немає,
-             * zgrok/MediaMTX не поверне
-             * нормальний HLS manifest.
-             */
 
-            var response = await fetch(
-                LIVE_URL + "?check=" + Date.now(),
-                {
-                    method: "GET",
-                    cache: "no-store"
-                }
-            );
+        switching = true;
 
+
+        /*
+         * Спочатку перевіряємо,
+         * чи взагалі існує HLS manifest.
+         */
+
+        fetch(
+            LIVE_URL + "?check=" + Date.now(),
+            {
+                method: "GET",
+                cache: "no-store"
+            }
+        )
+
+        .then(function(response) {
 
             if (!response.ok) {
 
@@ -470,101 +521,276 @@ else {
 
             }
 
+            return response.text();
 
-            var text =
-                await response.text();
+        })
 
-
-            /*
-             * Нормальний HLS manifest
-             * починається з #EXTM3U.
-             */
+        .then(function(text) {
 
             if (
                 !text.includes("#EXTM3U")
             ) {
 
                 throw new Error(
-                    "Invalid HLS manifest"
+                    "Invalid HLS"
                 );
 
             }
 
 
             /*
-             * HLS реально існує.
-             * Перемикаємо PlayerJS.
+             * Manifest існує.
+             * Перемикаємо PlayerJS на LIVE.
              */
 
-            player.api(
-                "play",
-                LIVE_URL
-            );
+            currentMode = "live";
 
             setLive();
 
-        }
 
-        catch (e) {
+            player.api(
+                "play",
+                "id:live"
+            );
+
+
+            /*
+             * Даємо HLS час реально
+             * почати відтворення.
+             */
+
+            setTimeout(function() {
+
+                try {
+
+                    var hlsError =
+                        player.api("hlserror");
+
+
+                    /*
+                     * Якщо PlayerJS отримав HLS
+                     * помилку — повертаємось OFFLINE.
+                     */
+
+                    if (hlsError) {
+
+                        playOffline();
+
+                    }
+
+                }
+
+                catch (e) {
+
+                }
+
+
+                switching = false;
+
+            }, 4000);
+
+        })
+
+        .catch(function() {
 
             /*
              * HLS недоступний.
-             * Залишаємо/повертаємо інтро.
              */
 
-            if (
-                !status.classList.contains("live")
-            ) {
+            currentMode = "offline";
 
-                setOffline();
+            setOffline();
 
-            }
+            switching = false;
 
-            else {
-
-                playOffline();
-
-            }
-
-        }
-
-        finally {
-
-            checking = false;
-
-        }
+        });
 
     }
 
 
     /* =========================
-       START
+       PLAYER EVENTS
+    ========================= */
+
+    window.PlayerjsEvents =
+        function(event, id, info) {
+
+
+            /*
+             * Помилка відтворення.
+             */
+
+            if (
+                event === "error" ||
+                event === "loaderror"
+            ) {
+
+                if (
+                    currentMode === "live"
+                ) {
+
+                    playOffline();
+
+                }
+
+            }
+
+
+            /*
+             * Якщо PlayerJS почав
+             * новий файл.
+             */
+
+            if (event === "new") {
+
+                try {
+
+                    var active =
+                        player.api("playlist_id");
+
+
+                    if (active === "live") {
+
+                        currentMode = "live";
+
+                        setLive();
+
+                    }
+
+                    else if (
+                        active === "offline"
+                    ) {
+
+                        currentMode = "offline";
+
+                        setOffline();
+
+                    }
+
+                }
+
+                catch (e) {}
+
+            }
+
+        };
+
+
+    /* =========================
+       INITIAL
     ========================= */
 
     setOffline();
 
 
     /*
-     * Даємо PlayerJS завантажитися,
-     * потім починаємо перевірку.
+     * Спочатку запускаємо інтро.
      */
 
     setTimeout(function() {
 
-        checkLive();
+        try {
 
-    }, 3000);
+            player.api(
+                "play",
+                "id:offline"
+            );
+
+        }
+
+        catch (e) {}
+
+    }, 500);
+
+
+    /*
+     * Потім перевіряємо LIVE.
+     */
+
+    setTimeout(function() {
+
+        playLive();
+
+    }, 5000);
 
 
     /* =========================
-       AUTO CHECK
+       PERIODIC CHECK
     ========================= */
 
     setInterval(function() {
 
-        checkLive();
+        /*
+         * Якщо OFFLINE —
+         * шукаємо появу стріму.
+         */
 
-    }, 5000);
+        if (
+            currentMode === "offline"
+        ) {
+
+            playLive();
+
+            return;
+
+        }
+
+
+        /*
+         * Якщо LIVE —
+         * перевіряємо, чи HLS
+         * досі доступний.
+         */
+
+        if (
+            currentMode === "live"
+        ) {
+
+            fetch(
+                LIVE_URL + "?check=" + Date.now(),
+                {
+                    method: "GET",
+                    cache: "no-store"
+                }
+            )
+
+            .then(function(response) {
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "HLS unavailable"
+                    );
+
+                }
+
+                return response.text();
+
+            })
+
+            .then(function(text) {
+
+                if (
+                    !text.includes("#EXTM3U")
+                ) {
+
+                    throw new Error(
+                        "Invalid HLS"
+                    );
+
+                }
+
+            })
+
+            .catch(function() {
+
+                playOffline();
+
+            });
+
+        }
+
+    }, 7000);
 
 }
 
